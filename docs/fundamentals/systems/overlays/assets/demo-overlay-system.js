@@ -1,4 +1,5 @@
 import { html, LitElement, css } from '@lion/core';
+import { LionButton } from '@lion/button';
 import { OverlayMixin } from '@lion/overlays';
 
 /**
@@ -9,9 +10,20 @@ class DemoOverlaySystem extends OverlayMixin(LitElement) {
   static get styles() {
     return [
       css`
-        ::slotted([slot=content]) {
-          
+        ::slotted([slot="content"]) {
+          background-color: #333;
+          color: white;
+          padding: 8px;
         } 
+
+        .close-button {
+          background: none;
+          border: none;
+          color: white;
+          font-weight: bold;
+          font-size: 16px;
+          padding: 4px;
+        }
       `
     ];
   }
@@ -45,9 +57,16 @@ class DemoOverlaySystem extends OverlayMixin(LitElement) {
       <slot name="backdrop"></slot>
       <div id="overlay-content-node-wrapper">
         <slot name="content"></slot>
+        <button class="close-button" aria-label="close dialog" @click="${this.close}"> ⨯ </button>
       </div>
+
       <div>popup is ${this.opened ? 'opened' : 'closed'}</div>
     `;
   }
 }
 customElements.define('demo-overlay-system', DemoOverlaySystem);
+
+
+class DemoCloseButton extends LionButton {
+  
+}
