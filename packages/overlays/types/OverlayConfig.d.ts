@@ -17,7 +17,7 @@ export interface OverlayConfig {
   elementToFocusAfterHide?: HTMLElement;
   /** Whether it should have a backdrop (currently exclusive to globalOverlayController) */
   hasBackdrop?: boolean;
-  /** Hides other overlays when mutiple are opened (currently exclusive to globalOverlayController) */
+  /** Hides other overlays when multiple are opened (currently exclusive to globalOverlayController) */
   isBlocking?: boolean;
   /** Prevents scrolling body content when overlay opened (currently exclusive to globalOverlayController) */
   preventsScroll?: boolean;
@@ -61,8 +61,7 @@ export type ViewportPlacement =
   | 'bottom-right'
   | 'bottom'
   | 'bottom-left'
-  | 'left'
-  | 'center';
+  | 'left';
 
 export interface ViewportConfig {
   placement: ViewportPlacement;

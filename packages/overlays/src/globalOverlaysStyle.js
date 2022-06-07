@@ -16,6 +16,10 @@ export const globalOverlaysStyle = css`
     pointer-events: none;
   }
 
+  .global-overlays__overlay-container::backdrop {
+    display: none;
+  }
+
   .global-overlays__overlay-container--top-left {
     justify-content: flex-start;
     align-items: flex-start;

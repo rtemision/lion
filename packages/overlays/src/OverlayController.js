@@ -40,7 +40,7 @@ async function preloadPopper() {
 const supportsCSSTypedObject = window.CSS?.number && document.body.attributeStyleMap?.set;
 
 /**
- * @desc OverlayController is the fundament for every single type of overlay. With the right
+ * OverlayController is the fundament for every single type of overlay. With the right
  * configuration, it can be used to build (modal) dialogs, tooltips, dropdowns, popovers,
  * bottom/top/left/right sheets etc.
  *
@@ -175,14 +175,6 @@ export class OverlayController extends EventTargetShim {
     this._contentId = `overlay-content--${Math.random().toString(36).substr(2, 10)}`;
     /** @private */
     this.__originalAttrs = new Map();
-    // if (this._defaultConfig.contentNode) {
-    //   if (!this._defaultConfig.contentNode.isConnected) {
-    //     throw new Error(
-    //       '[OverlayController] Could not find a render target, since the provided contentNode is not connected to the DOM. Make sure that it is connected, e.g. by doing "document.body.appendChild(contentNode)", before passing it on.',
-    //     );
-    //   }
-    //   this.__isContentNodeProjected = Boolean(this._defaultConfig.contentNode.assignedSlot);
-    // }
     this.updateConfig(config);
     /** @private */
     this.__hasActiveTrapsKeyboardFocus = false;
@@ -482,16 +474,6 @@ export class OverlayController extends EventTargetShim {
     if (!newConfig.contentNode) {
       throw new Error('[OverlayController] You need to provide a .contentNode');
     }
-    // if (this.__isContentNodeProjected && !newConfig.contentWrapperNode) {
-    //   throw new Error(
-    //     '[OverlayController] You need to provide a .contentWrapperNode when .contentNode is projected',
-    //   );
-    // }
-    if (newConfig.isTooltip && newConfig.placementMode !== 'local') {
-      throw new Error(
-        '[OverlayController] .isTooltip should be configured with .placementMode "local"',
-      );
-    }
     if (newConfig.isTooltip && !newConfig.handlesAccessibility) {
       throw new Error(
         '[OverlayController] .isTooltip only takes effect when .handlesAccessibility is enabled',
@@ -512,9 +494,9 @@ export class OverlayController extends EventTargetShim {
     }
       
     // Reset all positioning styles (local, c.q. Popper) and classes (global)
-    const { isShown } = this;
+    // const { isShown } = this;
     this.contentWrapperNode.removeAttribute('style');
-    this.contentWrapperNode.style.display = isShown ? '' : 'none';
+    // this.__wrappingDialogNode.style.display = isShown ? '' : 'none';
     this.contentWrapperNode.removeAttribute('class');
 
 
@@ -547,7 +529,7 @@ export class OverlayController extends EventTargetShim {
    * The resulting structure that will be created looks like this:
    * 
    * ...
-   * <dialog>
+   * <dialog role="none">
    *   <div id="optional-backdrop"></div>
    *   <div id="content-wrapper-node">
    *     <!-- this was the (slot for) original content node --> 
@@ -565,10 +547,7 @@ export class OverlayController extends EventTargetShim {
     // A11y will depend on the type of overlay and is arranged on contentNode level.
     // Also see: https://www.scottohara.me/blog/2019/03/05/open-dialog.html
     wrappingDialogElement.setAttribute('role', 'none');
-    // Visibility will be handled via css display, so we open it by default
-    // @ts-expect-error
-    wrappingDialogElement.open = true;
-    wrappingDialogElement.style.cssText = 'background: none; border: none; padding: 0;';
+    wrappingDialogElement.style.cssText = 'display:none; background: none; border: none; padding: 0;';
     this.__wrappingDialogNode = wrappingDialogElement;
 
     /**
@@ -577,20 +556,21 @@ export class OverlayController extends EventTargetShim {
      */
     if (!this.config?.contentWrapperNode) {
       this.__contentWrapperNode = document.createElement('div');
-      wrappingDialogElement.appendChild(this.__contentWrapperNode);
-
-      if (this.contentNode.assignedSlot) {
-        // wrap contentNode slot in shadow dom
-        const { assignedSlot } = this.contentNode;
-        wrapInOriginalPosition({ wrappingEl: this.__contentWrapperNode, originalEl: assignedSlot  });
-      } else {
-        // wrap contentNode in light dom
-        wrapInOriginalPosition({ wrappingEl: this.__contentWrapperNode, originalEl: this.contentNode });
-      }
+      this.__contentWrapperNode.appendChild(this.contentNode.assignedSlot || this.contentNode);
+      // wrap contentNode in shadow dom (assignedSlot) or light dom
+      // wrapInOriginalPosition({ 
+      //   wrappingEl: this.__contentWrapperNode, 
+      //   originalEl: this.contentNode.assignedSlot || this.contentNode 
+      // });
     }
-    wrapInOriginalPosition({ wrappingEl: wrappingDialogElement, originalEl: this.contentWrapperNode });
 
-    this.contentWrapperNode.style.display = 'none';
+    const contentWrapperNode = this.config?.contentWrapperNode || this.__contentWrapperNode;
+    wrapInOriginalPosition({ wrappingEl: wrappingDialogElement, originalEl: contentWrapperNode });
+
+    // @ts-ignore
+    wrappingDialogElement.open = true;
+
+    this.__wrappingDialogNode.style.display = 'none';
     this.contentWrapperNode.style.zIndex = '1';
 
     if (getComputedStyle(this.contentNode).position === 'absolute') {
@@ -686,7 +666,7 @@ export class OverlayController extends EventTargetShim {
   }
 
   get isShown() {
-    return Boolean(this.contentWrapperNode.style.display !== 'none');
+    return Boolean(this.__wrappingDialogNode?.style.display !== 'none');
   }
 
   /**
@@ -717,7 +697,10 @@ export class OverlayController extends EventTargetShim {
     const event = new CustomEvent('before-show', { cancelable: true });
     this.dispatchEvent(event);
     if (!event.defaultPrevented) {
-      this.contentWrapperNode.style.display = '';
+      // @ts-ignore
+      this.__wrappingDialogNode.show();
+      // @ts-ignore
+      this.__wrappingDialogNode.style.display = '';
       this._keepBodySize({ phase: 'before-show' });
       await this._handleFeatures({ phase: 'show' });
       this._keepBodySize({ phase: 'show' });
@@ -836,7 +819,10 @@ export class OverlayController extends EventTargetShim {
         contentNode: this.contentNode,
       });
 
-      this.contentWrapperNode.style.display = 'none';
+      // @ts-ignore
+      this.__wrappingDialogNode.close();
+      // @ts-ignore
+      this.__wrappingDialogNode.style.display = 'none';
       this._handleFeatures({ phase: 'hide' });
       this._keepBodySize({ phase: 'hide' });
       this.dispatchEvent(new Event('hide'));
@@ -851,6 +837,7 @@ export class OverlayController extends EventTargetShim {
    * @param {{backdropNode:HTMLElement, contentNode:HTMLElement}} hideConfig
    */
   // eslint-disable-next-line class-methods-use-this, no-empty-function, no-unused-vars
+  // @ts-ignore
   async transitionHide(hideConfig) {}
 
   /**
@@ -865,9 +852,6 @@ export class OverlayController extends EventTargetShim {
     if (!backdropNode) { 
       return;
     }
-    // /** @type {() => void} */
-    // let afterFadeOut = () => {};
-    // this.__backdropAnimation = new Promise(resolve => {
     const afterFadeOut = () => {
       if (backdropNode) {
         backdropNode.classList.remove(`global-overlays__backdrop--animation-out`);
@@ -875,15 +859,10 @@ export class OverlayController extends EventTargetShim {
         backdropNode.removeEventListener('animationend', afterFadeOut);
       }
     }
-    //     resolve(undefined);
-    //   };
-    // });
-    // console.log('add event');
     backdropNode.removeEventListener('animationend', afterFadeOut);
     backdropNode.classList.remove(`global-overlays__backdrop--animation-in`);
     backdropNode.addEventListener('animationend', afterFadeOut);
     backdropNode.classList.add(`global-overlays__backdrop--animation-out`);
-    
   }
 
   /**
@@ -892,6 +871,7 @@ export class OverlayController extends EventTargetShim {
    * @param {{backdropNode:HTMLElement; contentNode:HTMLElement}} showConfig
    */
   // eslint-disable-next-line class-methods-use-this, no-empty-function, no-unused-vars
+  // @ts-ignore
   async transitionShow(showConfig) {}
 
   /**
@@ -1008,6 +988,7 @@ export class OverlayController extends EventTargetShim {
    * @protected
    */
   _handleBackdrop({ phase }) {
+    // eslint-disable-next-line default-case
     switch (phase) {
       case 'init': {
         if(!this.__backdropInitialized) {
@@ -1042,7 +1023,15 @@ export class OverlayController extends EventTargetShim {
    */
   _handleTrapsKeyboardFocus({ phase }) {
     if (phase === 'show') {
-      this.enableTrapsKeyboardFocus();
+      // @ts-ignore
+      if ('showModal' in this.__wrappingDialogNode) {
+        // @ts-ignore
+        this.__wrappingDialogNode.close();
+        // @ts-ignore
+        this.__wrappingDialogNode.showModal();
+      } else {
+        this.enableTrapsKeyboardFocus();
+      }
     } else if (phase === 'hide' || phase === 'teardown') {
       this.disableTrapsKeyboardFocus();
     }
@@ -1241,21 +1230,7 @@ export class OverlayController extends EventTargetShim {
 
   teardown() {
     this._handleFeatures({ phase: 'teardown' });
-
-    // Remove the content node wrapper from the global rootnode
-    // this._teardownContentWrapperNode();
   }
-
-  // /** @protected */
-  // _teardownContentWrapperNode() {
-  //   // if (
-  //   //   this.placementMode === 'global' &&
-  //   //   this.contentWrapperNode &&
-  //   //   this.contentWrapperNode.parentNode
-  //   // ) {
-  //   //   this.contentWrapperNode.parentNode.removeChild(this.contentWrapperNode);
-  //   // }
-  // }
 
   /** @private */
   async __createPopperInstance() {

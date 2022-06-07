@@ -1,10 +1,21 @@
-import { html, LitElement } from '@lion/core';
+import { html, LitElement, css } from '@lion/core';
 import { OverlayMixin } from '@lion/overlays';
 
 /**
  * @typedef {import('../types/OverlayConfig').OverlayConfig} OverlayConfig
  */
 class DemoOverlaySystem extends OverlayMixin(LitElement) {
+
+  static get styles() {
+    return [
+      css`
+        ::slotted([slot=content]) {
+          
+        } 
+      `
+    ];
+  }
+
   // eslint-disable-next-line class-methods-use-this
   _defineOverlayConfig() {
     return /** @type {OverlayConfig} */ ({

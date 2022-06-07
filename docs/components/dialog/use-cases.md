@@ -31,7 +31,7 @@ export const stylingContent = () => html`
   <style>
     ${demoStyle}
   </style>
-  <lion-dialog .config=${{ hidesOnOutsideClick: true, hidesOnEsc: true }}>
+  <lion-dialog .config=${({ hidesOnOutsideClick: true, hidesOnEsc: true })}>
     <button slot="invoker">Styled dialog</button>
     <styled-dialog-content slot="content"></styled-dialog-content>
   </lion-dialog>
@@ -45,7 +45,7 @@ export const slotsContent = () => html`
   <style>
     ${demoStyle}
   </style>
-  <lion-dialog .config=${{ hidesOnOutsideClick: true, hidesOnEsc: true }}>
+  <lion-dialog .config=${({ hidesOnOutsideClick: true, hidesOnEsc: true })}>
     <button slot="invoker">Dialog with content with slots</button>
     <slots-dialog-content slot="content">
       <p>Some Stuff</p>
@@ -64,7 +64,7 @@ export const closeOverlayFromComponent = () => html`
   <style>
     ${demoStyle}
   </style>
-  <lion-dialog .config=${{ hidesOnOutsideClick: true, hidesOnEsc: true }}>
+  <lion-dialog .config=${({ hidesOnOutsideClick: true, hidesOnEsc: true })}>
     <button slot="invoker">Styled dialog</button>
     <styled-dialog-content slot="content"></styled-dialog-content>
   </lion-dialog>
@@ -76,9 +76,9 @@ export const closeOverlayFromComponent = () => html`
 ```js preview-story
 export const placementOverrides = () => {
   const dialog = placement => html`
-    <lion-dialog .config=${{ viewportConfig: { placement } }}>
+    <lion-dialog .config="${({ viewportConfig: { placement } })}">
       <button slot="invoker">Dialog ${placement}</button>
-      <div slot="content" class="dialog">
+      <div slot="content" class="dialog demo-box">
         Hello! You can close this notification here:
         <button
           class="close-button"
@@ -121,12 +121,12 @@ export const otherOverrides = () => html`
     ${demoStyle}
   </style>
   <lion-dialog
-    .config=${{
+    .config=${({
       hasBackdrop: false,
       hidesOnEscape: true,
       preventsScroll: true,
       elementToFocusAfterHide: document.body,
-    }}
+    })}
   >
     <button slot="invoker">Click me to open dialog</button>
     <div slot="content" class="dialog">
