@@ -15,9 +15,16 @@ describe('lion-progress-indicator', () => {
       expect(el.getAttribute('aria-valuenow')).to.be.eq('50');
     });
 
-    it('sets the right role', async () => {
-      const el = await fixture(html` <lion-progress-indicator></lion-progress-indicator> `);
+    it('sets the right role "progressbar"', async () => {
+      const el = await fixture(
+        html` <lion-progress-indicator value="77"></lion-progress-indicator> `,
+      );
       expect(el.getAttribute('role')).to.equal('progressbar');
+    });
+
+    it('sets the right role "status"', async () => {
+      const el = await fixture(html` <lion-progress-indicator></lion-progress-indicator> `);
+      expect(el.getAttribute('role')).to.equal('status');
     });
 
     it('sets aria-live to "polite"', async () => {

@@ -37,16 +37,6 @@ export const reverse = () => html`<div style="padding:12px;">
 </div> `;
 ```
 
-## Threshold
-
-Specify the milestone using `threshold` attribute. Below and beyond threshold value has different visual representation.
-
-```js preview-story
-export const threshold = () => html`<div style="padding:12px;">
-  <lion-progress-indicator name="Interest rate" threshold="56" value="80"></lion-progress-indicator>
-</div> `;
-```
-
 ## Extend indicator to add custom styling
 
 Add custom styles and more features by extending the `LionProgressIndicator`.
@@ -109,16 +99,14 @@ export const progressBarDemo = () =>
       <custom-progress-bar name="default-bar" value="50"></custom-progress-bar>
     </div>
     <div style="padding:12px;">
-      <h3>Threshold</h3>
-      <custom-progress-bar name="marker-bar" value="30" threshold="50"></custom-progress-bar>
-    </div>
-    <div style="padding:12px;">
       <h3>Delta</h3>
       <custom-progress-bar name="delta-bar" start-at="25" value="30"></custom-progress-bar>
     </div>
     <div style="padding:12px;">
       <h3>Segmented and different bar color</h3>
       <custom-progress-bar name="segmented-bar" value="30" purple segmented></custom-progress-bar>
+      <br />
+      <blockquote>For segmentation, please consider contrast for the vertical bars.</blockquote>
     </div>
     <div style="padding:12px;">
       <button @click="${changeProgress}">Randomize Value</button>
@@ -191,6 +179,5 @@ class CustomProgressIndicator extends LionProgressIndicator {
 ### Custom Indicator Result
 
 ```js preview-story
-export const main = () =>
-  html` <custom-progress-indicator variant="indeterminate"></custom-progress-indicator> `;
+export const main = () => html` <custom-progress-indicator></custom-progress-indicator> `;
 ```

@@ -129,7 +129,7 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
   _graphicTemplate() {
     return html`
       <div class="fill" style=${styleMap(this._customStyles)}></div>
-      ${this._extraTemplate} ${this._thresholdMarkerTemplate}
+      ${this._extraTemplate}
     `;
   }
 
@@ -140,11 +140,10 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
   connectedCallback() {
     super.connectedCallback();
     const uid = uuid();
-    if (this.getAttribute('variant') === 'indeterminate') {
+    if (!this.hasAttribute('value')) {
       this.setAttribute('role', 'status');
       this.setAttribute('aria-label', 'loading');
     } else {
-      this.setAttribute('variant', 'determinate');
       this.setAttribute('role', 'progressbar');
       this.setAttribute('aria-valuenow', this.value || '0');
       this.setAttribute('aria-valuemin', this.min || '0');
@@ -178,39 +177,11 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
   }
 
   /**
-   * Get threshold marker template
-   * @returns {TemplateResult | nothing}
-   */
-  get _thresholdMarkerTemplate() {
-    if (!this._isThresholdMarker) {
-      return nothing;
-    }
-    const threshold = Number(this.getAttribute('threshold'));
-    if (this.value === threshold) {
-      return nothing;
-    }
-
-    return html` <div
-      class="separator"
-      ?threshold-crossed=${this.value > threshold}
-      style=${styleMap({ left: `${threshold}%` })}
-    ></div>`;
-  }
-
-  /**
    * Get extra template
    * @returns {TemplateResult | nothing}
    */
   get _extraTemplate() {
     return nothing;
-  }
-
-  /**
-   * Check whether `threshold` attribute is specified or not.
-   * @returns {boolean}
-   */
-  get _isThresholdMarker() {
-    return this.hasAttribute('threshold');
   }
 
   /**

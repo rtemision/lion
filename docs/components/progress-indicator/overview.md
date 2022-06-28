@@ -27,7 +27,6 @@ This component is designed to be extended in order to add visuals.
 - `variant`: accepts either `determinate`, i.e. default, or `indeterminate`
 - `value`: progress value
 - `reverse`: fill the progress from RTL (default LTR)
-- `threshold`: specify the milestone
 - `--bar-color`: css custom property to set the bar color
 - `--placeholder-color`: css custom property to set the bar's placeholder color
 - `--separator-color`: css custom property to set the marker bar color
