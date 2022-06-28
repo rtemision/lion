@@ -1,5 +1,27 @@
 # Change Log
 
+## 0.33.1
+
+### Patch Changes
+
+- 270c7b30: fix chromium opacity bug by using filter
+- Updated dependencies [5ad98a26]
+  - @lion/core@0.23.1
+
+## 0.33.0
+
+### Minor Changes
+
+- e7a4ca1d: Add "type":"module" to ESM packages so loaders like Vite will interpret the package as ESM properly.
+
+### Patch Changes
+
+- 915de370: fix: isVisible check on elements with display:contents
+- Updated dependencies [e7a4ca1d]
+- Updated dependencies [96a24c4a]
+  - @lion/core@0.23.0
+  - singleton-manager@1.5.0
+
 ## 0.32.0
 
 ### Minor Changes

@@ -1,5 +1,47 @@
 # @lion/input-tel-dropdown
 
+## 0.2.2
+
+### Patch Changes
+
+- 7239d604: substract and export getFlagSymbol function
+- 7239d604: Add option to style the country-code with parentheses in the formatter
+- Updated dependencies [5ad98a26]
+- Updated dependencies [7239d604]
+- Updated dependencies [7239d604]
+  - @lion/core@0.23.1
+  - @lion/input-tel@0.2.2
+
+## 0.2.1
+
+### Patch Changes
+
+- 20436115: make sure input-tel(-dropdown) depends on latest minors
+- 3dee788f: add fix for edge cases onDropdownValueChange
+- Updated dependencies [20436115]
+  - @lion/input-tel@0.2.1
+
+## 0.2.0
+
+### Minor Changes
+
+- e7a4ca1d: Add "type":"module" to ESM packages so loaders like Vite will interpret the package as ESM properly.
+- 9591732f: Syncs value of dropdown on init if input has no value
+
+### Patch Changes
+
+- 01fd0d20: Add optgroups when preferredCountries are shown
+- 710e7c3d: Do not sync regionCode from input to dropdown if the countryCode didn't change
+- 710e7c3d: Only focus input on dropdownValue change if dropdown was opened. Otherwise it blocks user from use type ahead on the dropdown.
+- Updated dependencies [e7a4ca1d]
+- Updated dependencies [abcff8c9]
+- Updated dependencies [d382887e]
+- Updated dependencies [96a24c4a]
+- Updated dependencies [01fd0d20]
+  - @lion/core@0.23.0
+  - @lion/input-tel@0.2.0
+  - @lion/localize@0.25.0
+
 ## 0.1.2
 
 ### Patch Changes

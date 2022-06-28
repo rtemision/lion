@@ -1,6 +1,6 @@
 {
   "name": "@lion/ajax",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Thin wrapper around fetch with support for interceptors.",
   "license": "MIT",
   "author": "ing-bank",
@@ -10,6 +10,7 @@
     "url": "https://github.com/ing-bank/lion.git",
     "directory": "packages/ajax"
   },
+  "type": "module",
   "main": "index.js",
   "module": "index.js",
   "files": [

@@ -1,6 +1,6 @@
 {
   "name": "@lion/calendar",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "description": "Standalone calendar",
   "license": "MIT",
   "author": "ing-bank",
@@ -10,6 +10,7 @@
     "url": "https://github.com/ing-bank/lion.git",
     "directory": "packages/calendar"
   },
+  "type": "module",
   "main": "index.js",
   "module": "index.js",
   "files": [
@@ -36,8 +37,8 @@
     "lion-calendar.js"
   ],
   "dependencies": {
-    "@lion/core": "^0.22.0",
-    "@lion/localize": "^0.24.0"
+    "@lion/core": "^0.23.0",
+    "@lion/localize": "^0.25.0"
   },
   "keywords": [
     "calendar",

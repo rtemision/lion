@@ -1,6 +1,6 @@
 {
   "name": "@lion/core",
-  "version": "0.22.0",
+  "version": "0.23.1",
   "description": "Core functionality that is shared across all Lion Web Components",
   "license": "MIT",
   "author": "ing-bank",
@@ -10,6 +10,7 @@
     "url": "https://github.com/ing-bank/lion.git",
     "directory": "packages/core"
   },
+  "type": "module",
   "main": "index.js",
   "module": "index.js",
   "files": [

@@ -1,6 +1,6 @@
 {
   "name": "@lion/select",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Provide a set of options where you can select one",
   "license": "MIT",
   "author": "ing-bank",
@@ -10,6 +10,7 @@
     "url": "https://github.com/ing-bank/lion.git",
     "directory": "packages/select"
   },
+  "type": "module",
   "main": "index.js",
   "module": "index.js",
   "files": [
@@ -36,8 +37,8 @@
     "lion-select.js"
   ],
   "dependencies": {
-    "@lion/core": "^0.22.0",
-    "@lion/form-core": "^0.17.0"
+    "@lion/core": "^0.23.0",
+    "@lion/form-core": "^0.18.0"
   },
   "keywords": [
     "lion",

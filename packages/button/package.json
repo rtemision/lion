@@ -1,6 +1,6 @@
 {
   "name": "@lion/button",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "A button that is easily styleable and accessible in all contexts",
   "license": "MIT",
   "author": "ing-bank",
@@ -10,6 +10,7 @@
     "url": "https://github.com/ing-bank/lion.git",
     "directory": "packages/button"
   },
+  "type": "module",
   "main": "index.js",
   "module": "index.js",
   "files": [
@@ -39,7 +40,7 @@
     "define.js"
   ],
   "dependencies": {
-    "@lion/core": "^0.22.0"
+    "@lion/core": "^0.23.0"
   },
   "keywords": [
     "button",

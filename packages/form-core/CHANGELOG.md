@@ -1,5 +1,39 @@
 # Change Log
 
+## 0.18.1
+
+### Patch Changes
+
+- 63466d61: fix type export ValidationType
+- 20af7a44: Make sure form elements are added in the correct order even when non-form elements are in between.
+
+  ```html
+  <lion-form>
+    <lion-input></lion-input>
+    <some-separator></some-separator>
+    <!-- inserting something here should result in the correct formElements order -->
+    <div role="group">
+      <lion-input></lion-input>
+      <!-- inserting something here should result in the correct formElements order -->
+    </div>
+  </lion-form>
+  ```
+
+## 0.18.0
+
+### Minor Changes
+
+- e7a4ca1d: Add "type":"module" to ESM packages so loaders like Vite will interpret the package as ESM properly.
+- 33fd1bef: remove name property check on lion field for forward compatibility with Form participation api
+
+### Patch Changes
+
+- 96a24c4a: add common uuid helper and remove separate implementations
+- Updated dependencies [e7a4ca1d]
+- Updated dependencies [96a24c4a]
+  - @lion/core@0.23.0
+  - @lion/localize@0.25.0
+
 ## 0.17.1
 
 ### Patch Changes

@@ -2,6 +2,7 @@
 import { render, html, css, ref, createRef } from '@lion/core';
 import { LionInputTel } from '@lion/input-tel';
 import { localize } from '@lion/localize';
+import { getFlagSymbol } from './getFlagSymbol.js';
 
 /**
  * Note: one could consider to implement LionInputTelDropdown as a
@@ -30,14 +31,6 @@ import { localize } from '@lion/localize';
  * @typedef {import('@lion/overlays').OverlayController} OverlayController
  * @typedef {TemplateDataForDropdownInputTel & {data: {regionMetaList:RegionMeta[]}}} TemplateDataForIntlInputTel
  */
-
-// eslint-disable-next-line prefer-destructuring
-/**
- * @param {string} char
- */
-function getRegionalIndicatorSymbol(char) {
-  return String.fromCodePoint(0x1f1e6 - 65 + char.toUpperCase().charCodeAt(0));
-}
 
 /**
  * LionInputTelDropdown renders a dropdown like element next to the text field, inside the
@@ -279,6 +272,37 @@ export class LionInputTelDropdown extends LionInputTel {
         this.refs.dropdown?.value?.removeAttribute('disabled');
       }
     }
+
+    if (changedProperties.has('_phoneUtil')) {
+      this._initModelValueBasedOnDropdown();
+    }
+  }
+
+  _initModelValueBasedOnDropdown() {
+    if (!this._initialModelValue && !this.dirty && this._phoneUtil) {
+      const countryCode = this._phoneUtil.getCountryCodeForRegionCode(this.activeRegion);
+      if (this.formatCountryCodeStyle === 'parentheses') {
+        this.__initializedRegionCode = `(+${countryCode})`;
+      } else {
+        this.__initializedRegionCode = `+${countryCode}`;
+      }
+      this.modelValue = this.__initializedRegionCode;
+      this._initialModelValue = this.__initializedRegionCode;
+      this.initInteractionState();
+    }
+  }
+
+  /**
+   * Used for Required validation and computation of interaction states.
+   * We need to override this, because we prefill the input with the region code (like +31), but for proper UX,
+   * we don't consider this as having interaction state `prefilled`
+   * @param {string} modelValue
+   * @return {boolean}
+   * @protected
+   */
+  _isEmpty(modelValue = this.modelValue) {
+    // the activeRegion is not synced on time, so it can't be used in this check
+    return super._isEmpty(modelValue) || this.value === this.__initializedRegionCode;
   }
 
   /**
@@ -287,28 +311,32 @@ export class LionInputTelDropdown extends LionInputTel {
    */
   _onDropdownValueChange(event) {
     const isInitializing = event.detail?.initialize || !this._phoneUtil;
-    if (isInitializing) {
+    const dropdownValue = /** @type {RegionCode} */ (event.target.modelValue || event.target.value);
+
+    if (isInitializing || this.activeRegion === dropdownValue) {
       return;
     }
 
     const prevActiveRegion = this.activeRegion;
-    this._setActiveRegion(
-      /** @type {RegionCode} */ (event.target.value || event.target.modelValue),
-    );
+    this._setActiveRegion(dropdownValue);
 
     // Change region code in text box
     // From: https://bl00mber.github.io/react-phone-input-2.html
     if (prevActiveRegion !== this.activeRegion && !this.focused && this._phoneUtil) {
       const prevCountryCode = this._phoneUtil.getCountryCodeForRegionCode(prevActiveRegion);
       const countryCode = this._phoneUtil.getCountryCodeForRegionCode(this.activeRegion);
-      if (countryCode && !this.modelValue) {
-        // When textbox is empty, prefill it with country code
-        this.modelValue = `+${countryCode}`;
-      } else if (prevCountryCode && countryCode) {
-        // When textbox is not empty, replace country code
+      if (this.value.includes(`+${prevCountryCode}`)) {
         this.modelValue = this._callParser(
           this.value.replace(`+${prevCountryCode}`, `+${countryCode}`),
         );
+      } else {
+        // In case of dropdown has +31, and input has only +3
+        const valueObj = this.value.split(' ');
+        if (this.formatCountryCodeStyle === 'parentheses' && !this.value.includes('(')) {
+          this.modelValue = this._callParser(this.value.replace(valueObj[0], `(+${countryCode})`));
+        } else {
+          this.modelValue = this._callParser(this.value.replace(valueObj[0], `+${countryCode}`));
+        }
       }
     }
 
@@ -392,8 +420,7 @@ export class LionInputTelDropdown extends LionInputTel {
       const countryCode =
         this._phoneUtil && this._phoneUtil.getCountryCodeForRegionCode(regionCode);
 
-      const flagSymbol =
-        getRegionalIndicatorSymbol(regionCode[0]) + getRegionalIndicatorSymbol(regionCode[1]);
+      const flagSymbol = getFlagSymbol(regionCode);
 
       const destinationList = this.preferredRegions.includes(regionCode)
         ? this.__regionMetaListPreferred

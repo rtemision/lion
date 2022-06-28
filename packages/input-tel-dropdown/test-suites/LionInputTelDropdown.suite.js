@@ -1,17 +1,17 @@
-import {
-  expect,
-  fixture as _fixture,
-  fixtureSync as _fixtureSync,
-  html,
-  defineCE,
-  unsafeStatic,
-  aTimeout,
-} from '@open-wc/testing';
-import sinon from 'sinon';
 // @ts-ignore
 import { PhoneUtilManager } from '@lion/input-tel';
 // @ts-ignore
 import { mockPhoneUtilManager, restorePhoneUtilManager } from '@lion/input-tel/test-helpers';
+import {
+  aTimeout,
+  defineCE,
+  expect,
+  fixture as _fixture,
+  fixtureSync as _fixtureSync,
+  html,
+  unsafeStatic,
+} from '@open-wc/testing';
+import sinon from 'sinon';
 import { LionInputTelDropdown } from '../src/LionInputTelDropdown.js';
 
 /**
@@ -69,6 +69,53 @@ export function runInputTelDropdownSuite({ klass } = { klass: LionInputTelDropdo
     beforeEach(async () => {
       // Wait till PhoneUtilManager has been loaded
       await PhoneUtilManager.loadComplete;
+    });
+
+    it('syncs value of dropdown on init if input has no value', async () => {
+      const el = await fixture(html` <${tag}></${tag}> `);
+      expect(el.activeRegion).to.equal('GB');
+      expect(el.value).to.equal('+44');
+      expect(getDropdownValue(/** @type {DropdownElement} */ (el.refs.dropdown.value))).to.equal(
+        'GB',
+      );
+    });
+
+    it('syncs value of dropdown on reset if input has no value', async () => {
+      const el = await fixture(html` <${tag}></${tag}> `);
+      el.modelValue = '+31612345678';
+      await el.updateComplete;
+      expect(el.activeRegion).to.equal('NL');
+      el.reset();
+      await el.updateComplete;
+      expect(el.activeRegion).to.equal('GB');
+      expect(el.value).to.equal('+44');
+    });
+
+    it('syncs value of dropdown on init if input has no value does not influence interaction states', async () => {
+      const el = await fixture(html` <${tag}></${tag}> `);
+      // TODO find out why its get dirty again
+      // expect(el.dirty).to.be.false;
+      expect(el.prefilled).to.be.false;
+    });
+
+    it('syncs value of dropdown on reset also resets interaction states', async () => {
+      const el = await fixture(html` <${tag}></${tag}> `);
+      el.modelValue = '+31612345678';
+      await el.updateComplete;
+
+      expect(el.dirty).to.be.true;
+      expect(el.prefilled).to.be.false;
+      el.reset();
+      await el.updateComplete;
+      expect(el.dirty).to.be.false;
+      expect(el.prefilled).to.be.false;
+    });
+
+    it('sets correct interaction states on init if input has a value', async () => {
+      const el = await fixture(html` <${tag} .modelValue="${'+31612345678'}"></${tag}> `);
+      // TODO find out why its get dirty again
+      // expect(el.dirty).to.be.false;
+      expect(el.prefilled).to.be.true;
     });
 
     describe('Dropdown display', () => {
@@ -205,17 +252,18 @@ export function runInputTelDropdownSuite({ klass } = { klass: LionInputTelDropdo
         await aTimeout(0);
         expect(spy).to.have.been.calledOnce;
         restorePhoneUtilManager();
+        spy.restore();
       });
     });
 
     describe('On dropdown value change', () => {
       it('changes the currently active country code in the textbox', async () => {
-        const el = await fixture(
-          html` <${tag} .allowedRegions="${[
-            'NL',
-            'BE',
-          ]}" .modelValue="${'+31612345678'}"></${tag}> `,
-        );
+        const el = await fixture(html`
+          <${tag}
+            .allowedRegions="${['NL', 'BE']}"
+            .modelValue="${'+31612345678'}"
+          ></${tag}>
+        `);
         // @ts-ignore
         mimicUserChangingDropdown(el.refs.dropdown.value, 'BE');
         await el.updateComplete;
@@ -223,6 +271,71 @@ export function runInputTelDropdownSuite({ klass } = { klass: LionInputTelDropdo
         expect(el.modelValue).to.equal('+32612345678');
         await el.updateComplete;
         expect(el.value).to.equal('+32612345678');
+      });
+
+      it('changes the currently active country code in the textbox when empty', async () => {
+        const el = await fixture(html` <${tag} .allowedRegions="${['NL', 'BE']}"></${tag}> `);
+        el.value = '';
+        // @ts-ignore
+        mimicUserChangingDropdown(el.refs.dropdown.value, 'BE');
+        await el.updateComplete;
+        await el.updateComplete;
+        expect(el.value).to.equal('+32');
+      });
+
+      it('changes the currently active country code in the textbox when empty with parentheses', async () => {
+        const el = await fixture(
+          html` <${tag} format-country-code-style="parentheses" .allowedRegions="${[
+            'NL',
+            'BE',
+          ]}"></${tag}> `,
+        );
+        el.value = '';
+        // @ts-ignore
+        mimicUserChangingDropdown(el.refs.dropdown.value, 'BE');
+        await el.updateComplete;
+        await el.updateComplete;
+        expect(el.value).to.equal('(+32)');
+      });
+
+      it('changes the currently active country code in the textbox when invalid', async () => {
+        const el = await fixture(html` <${tag} .allowedRegions="${['NL', 'BE']}"></${tag}> `);
+        el.value = '+3';
+        // @ts-ignore
+        mimicUserChangingDropdown(el.refs.dropdown.value, 'BE');
+        await el.updateComplete;
+        await el.updateComplete;
+        expect(el.value).to.equal('+32');
+      });
+
+      it('changes the currently active country code in the textbox when invalid and small part of phone number', async () => {
+        const el = await fixture(html` <${tag} .allowedRegions="${['NL', 'BE']}"></${tag}> `);
+        el.value = '+3 2';
+        // @ts-ignore
+        mimicUserChangingDropdown(el.refs.dropdown.value, 'BE');
+        await el.updateComplete;
+        await el.updateComplete;
+        expect(el.value).to.equal('+32 2');
+      });
+
+      it('changes the currently active country code in the textbox when invalid and bigger part of phone number', async () => {
+        const el = await fixture(html` <${tag} .allowedRegions="${['NL', 'BE']}"></${tag}> `);
+        el.value = '+3 612345678';
+        // @ts-ignore
+        mimicUserChangingDropdown(el.refs.dropdown.value, 'BE');
+        await el.updateComplete;
+        await el.updateComplete;
+        expect(el.value).to.equal('+32 612345678');
+      });
+
+      it('changes the currently phonenumber completely in the textbox when not sure what to replace', async () => {
+        const el = await fixture(html` <${tag} .allowedRegions="${['NL', 'BE']}""></${tag}> `);
+        el.value = '+9912345678';
+        // @ts-ignore
+        mimicUserChangingDropdown(el.refs.dropdown.value, 'BE');
+        await el.updateComplete;
+        await el.updateComplete;
+        expect(el.value).to.equal('+32');
       });
 
       it('focuses the textbox right after selection if selected via opened dropdown', async () => {
@@ -259,15 +372,6 @@ export function runInputTelDropdownSuite({ klass } = { klass: LionInputTelDropdo
         // @ts-expect-error [allow-protected-in-tests]
         expect(el._inputNode).to.not.equal(document.activeElement);
       });
-
-      it('prefills country code when textbox is empty', async () => {
-        const el = await fixture(html` <${tag} .allowedRegions="${['NL', 'BE']}"></${tag}> `);
-        // @ts-ignore
-        mimicUserChangingDropdown(el.refs.dropdown.value, 'BE');
-        await el.updateComplete;
-        await el.updateComplete;
-        expect(el.value).to.equal('+32');
-      });
     });
 
     describe('On activeRegion change', () => {
@@ -291,6 +395,20 @@ export function runInputTelDropdownSuite({ klass } = { klass: LionInputTelDropdo
         expect(getDropdownValue(/** @type {DropdownElement} */ (el.refs.dropdown.value))).to.equal(
           'US',
         );
+      });
+    });
+
+    describe('is empthy', () => {
+      it('ignores initial countrycode', async () => {
+        const el = await fixture(html` <${tag}></${tag}> `);
+        // @ts-ignore
+        expect(el._isEmpty()).to.be.true;
+      });
+
+      it('ignores initial countrycode with parentheses', async () => {
+        const el = await fixture(html` <${tag} format-country-code-style="parentheses"></${tag}> `);
+        // @ts-ignore
+        expect(el._isEmpty()).to.be.true;
       });
     });
   });

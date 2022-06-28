@@ -71,10 +71,23 @@ describe('Ajax', () => {
       // When
       // @ts-expect-error
       const ajax1 = new Ajax(config);
-      const result = ajax1.options?.cacheOptions?.getCacheIdentifier;
+      const defaultCacheIdentifierFunction = ajax1.options?.cacheOptions?.getCacheIdentifier;
       // Then
-      expect(result).not.to.be.undefined;
-      expect(result).to.be.a('function');
+      expect(defaultCacheIdentifierFunction).not.to.be.undefined;
+      expect(defaultCacheIdentifierFunction).to.be.a('function');
+      expect(defaultCacheIdentifierFunction()).to.equal('_default');
+    });
+
+    it('can set options through a setter after the object has been created', () => {
+      // Given
+      const ajax1 = new Ajax({ jsonPrefix: 'prefix1' });
+      expect(ajax1.options.jsonPrefix).to.equal('prefix1');
+
+      // When
+      ajax1.options = { ...ajax1.options, jsonPrefix: 'prefix2' };
+
+      // Then
+      expect(ajax1.options.jsonPrefix).to.equal('prefix2');
     });
   });
 
@@ -168,6 +181,22 @@ describe('Ajax', () => {
         expect(response.body).to.eql({ a: 1, b: 2 });
       });
     });
+
+    it('throws on invalid JSON responses', async () => {
+      fetchStub.returns(Promise.resolve(new Response('invalid-json')));
+
+      let thrown = false;
+      try {
+        await ajax.fetchJson('/foo');
+      } catch (e) {
+        // https://github.com/microsoft/TypeScript/issues/20024 open issue, can't type catch clause in param
+        const _e = /** @type {Error} */ (e);
+        expect(_e).to.be.an.instanceOf(Error);
+        expect(_e.message).to.equal('Failed to parse response from  as JSON.');
+        thrown = true;
+      }
+      expect(thrown).to.be.true;
+    });
   });
 
   describe('request and response interceptors', () => {
@@ -227,6 +256,30 @@ describe('Ajax', () => {
       const response = await ajax.fetch('/foo', { method: 'POST' });
       const text = await response.text();
       expect(text).to.equal('mock response');
+    });
+
+    it('returns the original request object', async () => {
+      ajax.addRequestInterceptor(async () => new Response('my response', { status: 200 }));
+
+      const response = /** @type {CacheResponse} */ (await await ajax.fetch('/foo'));
+      expect(response.request).to.be.an.instanceOf(Request);
+    });
+
+    it('throws on 4xx responses returned from request interceptor', async () => {
+      ajax.addRequestInterceptor(async () => new Response('my response', { status: 400 }));
+
+      let thrown = false;
+      try {
+        await ajax.fetch('/foo');
+      } catch (e) {
+        // https://github.com/microsoft/TypeScript/issues/20024 open issue, can't type catch clause in param
+        const _e = /** @type {AjaxFetchError} */ (e);
+        expect(_e).to.be.an.instanceOf(AjaxFetchError);
+        expect(_e.request).to.be.an.instanceOf(Request);
+        expect(_e.response).to.be.an.instanceOf(Response);
+        thrown = true;
+      }
+      expect(thrown).to.be.true;
     });
   });
 

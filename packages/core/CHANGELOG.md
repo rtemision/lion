@@ -1,5 +1,21 @@
 # Change Log
 
+## 0.23.1
+
+### Patch Changes
+
+- 5ad98a26: fix: use partial renderOptions in SlotMixin (for Safari)
+
+## 0.23.0
+
+### Minor Changes
+
+- e7a4ca1d: Add "type":"module" to ESM packages so loaders like Vite will interpret the package as ESM properly.
+
+### Patch Changes
+
+- 96a24c4a: add common uuid helper and remove separate implementations
+
 ## 0.22.0
 
 ### Minor Changes
