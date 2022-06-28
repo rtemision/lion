@@ -1,8 +1,7 @@
-/* eslint-disable class-methods-use-this, import/no-extraneous-dependencies */
-
-import { nothing, LitElement, css, styleMap, html } from '@lion/core';
-import { localize, LocalizeMixin } from '@lion/localize';
+import { css, html, LitElement, styleMap } from '@lion/core';
 import { uuid } from '@lion/helpers';
+import { localize, LocalizeMixin } from '@lion/localize';
+
 /**
  * @typedef {import('@lion/core').TemplateResult} TemplateResult
  */
@@ -11,15 +10,15 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
     return {
       value: {
         type: Number,
-        reflect: true,
       },
       mix: {
         type: Number,
-        reflect: true,
       },
       max: {
         type: Number,
-        reflect: true,
+      },
+      label: {
+        type: String,
       },
     };
   }
@@ -28,35 +27,18 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
     return [
       css`
         :host {
-          --placeholder-color: #eee;
-          --bar-color: green;
-          --separator-color: #a8a8a8;
-          --separator-threshold-color: #fff;
-          --border-radius: 0;
           display: block;
           position: relative;
           width: 100%;
+          height: 6px;
           overflow: hidden;
-          background-color: var(--placeholder-color);
-          border-radius: var(--border-radius);
+          background-color: #eee;
         }
 
-        :host > .fill {
-          height: 6px;
-          background-color: var(--bar-color);
-          border-radius: var(--border-radius);
-        }
-
-        :host > .separator {
-          position: absolute;
-          top: 0;
-          width: 3px;
-          height: 6px;
-          background-color: var(--separator-color);
-        }
-
-        :host > .separator[threshold-crossed] {
-          background-color: var(--separator-threshold-color);
+        .progress__filled {
+          height: inherit;
+          background-color: green;
+          border-radius: inherit;
         }
       `,
     ];
@@ -125,11 +107,18 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
     ];
   }
 
+  constructor() {
+    super();
+    this.value = 0;
+    this.min = 0;
+    this.max = 100;
+    this.label = '';
+  }
+
   /** @protected */
   _graphicTemplate() {
     return html`
-      <div class="fill" style=${styleMap(this._customStyles)}></div>
-      ${this._extraTemplate}
+      <div class="progress__filled" style=${styleMap(this._customStyles)}></div>
     `;
   }
 
@@ -142,13 +131,12 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
     const uid = uuid();
     if (!this.hasAttribute('value')) {
       this.setAttribute('role', 'status');
-      this.setAttribute('aria-label', 'loading');
     } else {
       this.setAttribute('role', 'progressbar');
-      this.setAttribute('aria-valuenow', this.value || '0');
-      this.setAttribute('aria-valuemin', this.min || '0');
-      this.setAttribute('aria-valuemax', this.max || '100');
-      this.setAttribute('aria-label', this.getAttribute('name') || `progress-bar-${uid}`);
+      this.setAttribute('aria-valuenow', this.value.toString());
+      this.setAttribute('aria-valuemin', this.min.toString());
+      this.setAttribute('aria-valuemax', this.max.toString());
+      this.setAttribute('aria-label', this.label);
     }
     this.setAttribute('id', `progress-indicator-${uid}`);
     this.setAttribute('aria-live', 'polite');
@@ -159,36 +147,23 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
    * @param {import('@lion/core').PropertyValues } changedProperties
    */
   updated(changedProperties) {
-    if (changedProperties.has('value')) {
-      this.setAttribute('aria-valuenow', this.value);
+    if (changedProperties.has('value') && this.hasAttribute('value')) {
+      this.setAttribute('aria-valuenow', this.value.toString());
     }
   }
 
   onLocaleUpdated() {
-    const label = localize.msg('lion-progress-indicator:loading');
-    this.setAttribute('aria-label', label);
+    if (!this.hasAttribute('value') && !this.label) {
+      this.setAttribute('aria-label', localize.msg('lion-progress-indicator:loading'));
+    }
   }
 
   get _customStyles() {
-    return {
-      width: `${this.value}%`,
-      float: this._isReverse ? 'right' : 'unset',
-    };
-  }
-
-  /**
-   * Get extra template
-   * @returns {TemplateResult | nothing}
-   */
-  get _extraTemplate() {
-    return nothing;
-  }
-
-  /**
-   * Check whether `reverse` attribute is specified or not.
-   * @returns {boolean}
-   */
-  get _isReverse() {
-    return this.hasAttribute('reverse');
+    if (this.value) {
+      return {
+        width: `${this.value}%`,
+      };
+    }
+    return {};
   }
 }

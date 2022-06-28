@@ -8,33 +8,8 @@ import './assets/custom-progress-bar.js';
 
 const changeProgress = () => {
   const progressBar = document.getElementsByName('default-bar')[0];
-  const progressBarMarker = document.getElementsByName('marker-bar')[0];
-  const progressBarSegmented = document.getElementsByName('segmented-bar')[0];
-  const progressBarDelta = document.getElementsByName('delta-bar')[0];
-
   progressBar.value = Math.floor(Math.random() * 101);
-  progressBarMarker.value = Math.floor(Math.random() * 101);
-  progressBarSegmented.value = Math.floor(Math.random() * 101);
-  progressBarDelta.value = Math.floor(Math.random() * 101);
 };
-```
-
-## Default
-
-```js preview-story
-export const defaultBar = () => html`<div style="padding:12px;">
-  <lion-progress-indicator name="Interest rate" value="50"></lion-progress-indicator>
-</div> `;
-```
-
-## Reverse
-
-Fill the progress from right to left instead of LTR.
-
-```js preview-story
-export const reverse = () => html`<div style="padding:12px;">
-  <lion-progress-indicator name="Interest rate" reverse value="10"></lion-progress-indicator>
-</div> `;
 ```
 
 ## Extend indicator to add custom styling
@@ -48,43 +23,17 @@ export class CustomProgressBar extends LionProgressIndicator {
       super.styles,
       css`
         :host {
-          --bar-color: #8f7325;
-          --border-radius: 48px;
+          height: 16px;
+          background-color: black;
+          border-radius: 48px;
         }
 
-        :host([purple]) > .fill {
-          --bar-color: purple;
-        }
-
-        :host > .fill {
+        .progress__filled {
+          background-color: var(--primary-color);
           transition: width 1s ease-in-out;
-        }
-
-        :host > .separator {
-          transition: background-color 1s ease-in-out;
         }
       `,
     ];
-  }
-
-  get separatorsTemplate() {
-    if (!this.hasAttribute('segmented')) {
-      return nothing;
-    }
-
-    return [10, 50, 90].map(
-      segment => html`
-        <div
-          class="separator"
-          ?threshold-crossed=${this.progressValue >= segment}
-          style=${styleMap({ left: `${segment}%` })}
-        ></div>
-      `,
-    );
-  }
-
-  get _extraTemplate() {
-    return this.separatorsTemplate;
   }
 }
 ```
@@ -96,17 +45,7 @@ export const progressBarDemo = () =>
   html`
     <div style="padding:12px;">
       <h3>Default</h3>
-      <custom-progress-bar name="default-bar" value="50"></custom-progress-bar>
-    </div>
-    <div style="padding:12px;">
-      <h3>Delta</h3>
-      <custom-progress-bar name="delta-bar" start-at="25" value="30"></custom-progress-bar>
-    </div>
-    <div style="padding:12px;">
-      <h3>Segmented and different bar color</h3>
-      <custom-progress-bar name="segmented-bar" value="30" purple segmented></custom-progress-bar>
-      <br />
-      <blockquote>For segmentation, please consider contrast for the vertical bars.</blockquote>
+      <custom-progress-bar label="Interest rate" name="default-bar" value="50"></custom-progress-bar>
     </div>
     <div style="padding:12px;">
       <button @click="${changeProgress}">Randomize Value</button>
@@ -123,23 +62,18 @@ class CustomProgressIndicator extends LionProgressIndicator {
   static get styles() {
     return [
       css`
-        :host {
-          display: block;
-        }
-
-        .progress--icon {
+        .progress__icon {
           display: inline-block;
           width: 48px;
           height: 48px;
           animation: spinner-rotate 2s linear infinite;
         }
 
-        .progress--icon--circle {
+        .progress__filled {
           animation: spinner-dash 1.35s ease-in-out infinite;
           fill: none;
           stroke-width: 6px;
           stroke: var(--primary-color);
-          stroke-dasharray: 100, 28; /* This is a fallback for IE11 */
         }
 
         @keyframes spinner-rotate {
@@ -168,8 +102,8 @@ class CustomProgressIndicator extends LionProgressIndicator {
 
   _graphicTemplate() {
     return html`
-      <svg class="progress--icon" viewBox="20 20 47 47">
-        <circle class="progress--icon--circle" cx="44" cy="44" r="20.2" />
+      <svg class="progress__icon" viewBox="20 20 47 47">
+        <circle class="progress__filled" cx="44" cy="44" r="20.2" />
       </svg>
     `;
   }
@@ -179,5 +113,7 @@ class CustomProgressIndicator extends LionProgressIndicator {
 ### Custom Indicator Result
 
 ```js preview-story
-export const main = () => html` <custom-progress-indicator></custom-progress-indicator> `;
+export const main = () => html`
+  <custom-progress-indicator></custom-progress-indicator> 
+`;
 ```

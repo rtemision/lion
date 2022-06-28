@@ -11,7 +11,7 @@ import '@lion/progress-indicator/define';
 export const main = () => {
   return html`
     <div style="padding:12px;">
-      <lion-progress-indicator name="Interest rate" value="50"></lion-progress-indicator>
+      <lion-progress-indicator label="Interest rate" value="50"></lion-progress-indicator>
     </div>
   `;
 };
@@ -24,13 +24,11 @@ This component is designed to be extended in order to add visuals.
 - Accessibility compliant
 - Localized "Loading" label
 - Implementation independent of visuals
-- `variant`: accepts either `determinate`, i.e. default, or `indeterminate`
-- `value`: progress value
-- `reverse`: fill the progress from RTL (default LTR)
+- `value`: progress value, setting this makes the progress-bar determinate.
+- `min`: progress min value
+- `max`: progress max value
 - `--bar-color`: css custom property to set the bar color
 - `--placeholder-color`: css custom property to set the bar's placeholder color
-- `--separator-color`: css custom property to set the marker bar color
-- `--separator-threshold-color`: css custom property to set the marker color after the given threshold is crossed
 
 ## Installation
 
