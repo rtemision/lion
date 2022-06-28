@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { css, html, LitElement, styleMap } from '@lion/core';
 import { uuid } from '@lion/helpers';
 import { localize, LocalizeMixin } from '@lion/localize';
@@ -117,9 +118,7 @@ export class LionProgressIndicator extends LocalizeMixin(LitElement) {
 
   /** @protected */
   _graphicTemplate() {
-    return html`
-      <div class="progress__filled" style=${styleMap(this._customStyles)}></div>
-    `;
+    return html` <div class="progress__filled" style=${styleMap(this._customStyles)}></div> `;
   }
 
   render() {

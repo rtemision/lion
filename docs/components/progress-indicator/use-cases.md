@@ -22,6 +22,11 @@ The min is automatically set to "0" and max to "100", but they can be set to you
 
 ```js preview-story
 export const determined = () => html`<div style="padding:12px;">
-  <lion-progress-indicator label="Interest rate" min="20" value="50" max="60"></lion-progress-indicator>
+  <lion-progress-indicator
+    label="Interest rate"
+    min="20"
+    value="50"
+    max="60"
+  ></lion-progress-indicator>
 </div> `;
 ```

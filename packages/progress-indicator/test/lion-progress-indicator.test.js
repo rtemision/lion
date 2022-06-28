@@ -13,16 +13,12 @@ const fixture = /** @type {(arg: TemplateResult) => Promise<LionProgressIndicato
 describe('lion-progress-indicator', () => {
   describe('undetermined', () => {
     it('by default', async () => {
-      const el = await fixture(
-        html` <lion-progress-indicator></lion-progress-indicator> `,
-      );
+      const el = await fixture(html` <lion-progress-indicator></lion-progress-indicator> `);
       expect(el.getAttribute('role')).to.equal('status');
     });
 
     it('adds a label by default', async () => {
-      const el = await fixture(
-        html` <lion-progress-indicator></lion-progress-indicator> `,
-      );
+      const el = await fixture(html` <lion-progress-indicator></lion-progress-indicator> `);
       await el.localizeNamespacesLoaded;
       expect(el.getAttribute('aria-label')).to.equal('Loading');
     });
@@ -40,7 +36,7 @@ describe('lion-progress-indicator', () => {
     it('allows to set min & max values', async () => {
       const el = await fixture(
         html` <lion-progress-indicator value="25"></lion-progress-indicator> `,
-      );    
+      );
       expect(el.getAttribute('aria-valuemin')).to.be.eq('0');
       expect(el.getAttribute('aria-valuemax')).to.be.eq('100');
     });
@@ -55,9 +51,7 @@ describe('lion-progress-indicator', () => {
 
   describe('Accessibility', () => {
     it('undetermined', async () => {
-      const el = await fixture(
-        html` <lion-progress-indicator></lion-progress-indicator> `,
-      );
+      const el = await fixture(html` <lion-progress-indicator></lion-progress-indicator> `);
       await expect(el).to.be.accessible();
     });
 

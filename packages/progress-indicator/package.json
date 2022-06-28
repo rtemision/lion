@@ -37,12 +37,14 @@
   ],
   "dependencies": {
     "@lion/core": "^0.22.0",
+    "@lion/helpers": "^0.11.0",
     "@lion/localize": "^0.24.0"
   },
   "keywords": [
     "lion",
     "loading-indicator",
     "progress-indicator",
+    "progress-bar",
     "spinner",
     "web-components"
   ],

@@ -45,7 +45,11 @@ export const progressBarDemo = () =>
   html`
     <div style="padding:12px;">
       <h3>Default</h3>
-      <custom-progress-bar label="Interest rate" name="default-bar" value="50"></custom-progress-bar>
+      <custom-progress-bar
+        label="Interest rate"
+        name="default-bar"
+        value="50"
+      ></custom-progress-bar>
     </div>
     <div style="padding:12px;">
       <button @click="${changeProgress}">Randomize Value</button>
@@ -113,7 +117,5 @@ class CustomProgressIndicator extends LionProgressIndicator {
 ### Custom Indicator Result
 
 ```js preview-story
-export const main = () => html`
-  <custom-progress-indicator></custom-progress-indicator> 
-`;
+export const main = () => html` <custom-progress-indicator></custom-progress-indicator> `;
 ```
