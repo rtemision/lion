@@ -13,6 +13,11 @@ import {
 
 import './assets/demo-overlay-system.js';
 import './assets/demo-overlay-positioning.js';
+<<<<<<< Updated upstream
+=======
+import './assets/select-bug.js';
+
+>>>>>>> Stashed changes
 import { ref, createRef } from 'lit/directives/ref.js';
 ```
 
@@ -21,5 +26,11 @@ import { ref, createRef } from 'lit/directives/ref.js';
 Placementmode
 
 ```js preview-story
+<<<<<<< Updated upstream
 export const localPositioning = () => html`<demo-overlay-positioning></demo-overlay-positioning>`;
+=======
+export const localPositioning = () =>
+  html`<lion-select-issue></lion-select-issue
+    ><demo-overlay-positioning></demo-overlay-positioning>`;
+>>>>>>> Stashed changes
 ```

@@ -329,14 +329,14 @@ const FormatMixinImplementation = superclass =>
       if (!this.__isHandlingComposition) {
         this.__handlePreprocessor();
       }
-      const prevFormatted = this.formattedValue;
+      // const prevFormatted = this.formattedValue;
       this.modelValue = this._callParser(this.value);
 
       // Sometimes, the formattedValue didn't change, but the viewValue did...
       // We need this check to support pasting values that need to be formatted right on paste
-      if (prevFormatted === this.formattedValue && this.__prevViewValue !== this.value) {
-        this._calculateValues();
-      }
+      // if (prevFormatted === this.formattedValue && this.__prevViewValue !== this.value) {
+      this._calculateValues();
+      // }
     }
 
     /**
