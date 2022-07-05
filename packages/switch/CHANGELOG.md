@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.21.1
+
+### Patch Changes
+
+- 718ce014: Fix switch to set role in connectedCallback instead of constructor (throws error).
+
 ## 0.21.0
 
 ### Minor Changes
