@@ -27,8 +27,6 @@ This component is designed to be extended in order to add visuals.
 - `value`: progress value, setting this makes the progress-bar determinate.
 - `min`: progress min value
 - `max`: progress max value
-- `--bar-color`: css custom property to set the bar color
-- `--placeholder-color`: css custom property to set the bar's placeholder color
 
 ## Installation
 
