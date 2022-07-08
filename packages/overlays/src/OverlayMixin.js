@@ -29,7 +29,7 @@ export const OverlayMixinImplementation = superclass =>
       this.opened = false;
       /** @private */
       this.__needsSetup = true;
-      /** @type {OverlayConfig} */
+      /** @type {Partial<OverlayConfig>} */
       this.config = {};
 
       /** @type {EventListener} */

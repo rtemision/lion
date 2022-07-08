@@ -15,7 +15,7 @@ import { globalOverlaysStyle } from './globalOverlaysStyle.js';
  */
 
 /**
- * Wraps an existing element while respecting the original dom position of 
+ * Wraps an existing element while respecting the original dom position of
  * the element being wrapped
  * @param {{ originalEl:Element; wrappingEl:Element; }} opts
  */
@@ -492,13 +492,12 @@ export class OverlayController extends EventTargetShim {
       this.__initContentDomStructure();
       this.__contentHasBeenInitialized = true;
     }
-      
+
     // Reset all positioning styles (local, c.q. Popper) and classes (global)
     // const { isShown } = this;
     this.contentWrapperNode.removeAttribute('style');
     // this.__wrappingDialogNode.style.display = isShown ? '' : 'none';
     this.contentWrapperNode.removeAttribute('class');
-
 
     if (this.placementMode === 'local') {
       // Lazily load Popper if not done yet
@@ -514,40 +513,45 @@ export class OverlayController extends EventTargetShim {
     this._handleFeatures({ phase: 'init' });
   }
 
-  /** 
+  /**
    * Here we arrange our content node via:
    * 1. HTMLDialogElement: the content will always be painted to the browser's top layer
    *   - no matter what context the contentNode lives in, the overlay will be painted correctly via the <dialog> element,
    *     even if 'overflow:hidden' or a css transform is applied in its parent hierarchy.
    *   - the dialog element will be unstyled, but will span the whole screen
-   *   - a backdrop element will be a child of the dialog element, so it leverages the capabilities of the parent 
+   *   - a backdrop element will be a child of the dialog element, so it leverages the capabilities of the parent
    *     (filling the whole screen if wanted an always painted to top layer)
-   * 2. ContentWrapper: the content receives the right positioning styles in a clean/non conflicting way: 
+   * 2. ContentWrapper: the content receives the right positioning styles in a clean/non conflicting way:
    *  - local positioning: receive inline (position) styling that can never conflict with the already existing computed styles
    *  - global positioning: receive flex (child) classes that position the content correctly relative to the viewport
-   * 
+   *
    * The resulting structure that will be created looks like this:
-   * 
+   *
    * ...
    * <dialog role="none">
    *   <div id="optional-backdrop"></div>
    *   <div id="content-wrapper-node">
-   *     <!-- this was the (slot for) original content node --> 
+   *     <!-- this was the (slot for) original content node -->
    *     <slot name="content"></slot>
    *   </div>
    * </dialog>
    * ...
-   * 
-   * @private 
+   *
+   * @private
    */
   __initContentDomStructure() {
-    // 
-    const wrappingDialogElement = document.createElement('dialog');
-    // We use a dialog for its visual capabilities: it renders to the top layer. 
+    const wrappingDialogElement = document.createElement(
+      this.config?.noDialogEl ? 'div' : 'dialog',
+    );
+    // We use a dialog for its visual capabilities: it renders to the top layer.
     // A11y will depend on the type of overlay and is arranged on contentNode level.
     // Also see: https://www.scottohara.me/blog/2019/03/05/open-dialog.html
     wrappingDialogElement.setAttribute('role', 'none');
-    wrappingDialogElement.style.cssText = 'display:none; background: none; border: none; padding: 0;';
+    // N.B. position: fixed is needed to escape out of 'overflow: hidden'
+    // We give a high z-index for non-modal dialogs, so that we at least win from all siblings of our
+    // parent stacking context
+    wrappingDialogElement.style.cssText =
+      'display:none; background: none; border: none; padding: 0; position: fixed';
     this.__wrappingDialogNode = wrappingDialogElement;
 
     /**
@@ -557,11 +561,6 @@ export class OverlayController extends EventTargetShim {
     if (!this.config?.contentWrapperNode) {
       this.__contentWrapperNode = document.createElement('div');
       this.__contentWrapperNode.appendChild(this.contentNode.assignedSlot || this.contentNode);
-      // wrap contentNode in shadow dom (assignedSlot) or light dom
-      // wrapInOriginalPosition({ 
-      //   wrappingEl: this.__contentWrapperNode, 
-      //   originalEl: this.contentNode.assignedSlot || this.contentNode 
-      // });
     }
 
     const contentWrapperNode = this.config?.contentWrapperNode || this.__contentWrapperNode;
@@ -698,7 +697,9 @@ export class OverlayController extends EventTargetShim {
     this.dispatchEvent(event);
     if (!event.defaultPrevented) {
       // @ts-ignore
-      this.__wrappingDialogNode.show();
+      if (typeof this.__wrappingDialogNode.show === 'function') {
+        this.__wrappingDialogNode.show();
+      }
       // @ts-ignore
       this.__wrappingDialogNode.style.display = '';
       this._keepBodySize({ phase: 'before-show' });
@@ -728,12 +729,11 @@ export class OverlayController extends EventTargetShim {
         this.contentWrapperNode.classList.add('global-overlays__overlay-container');
         this.contentWrapperNode.classList.add(placementClass);
         this.contentNode.classList.add('global-overlays__overlay');
-      } else if (phase === 'hide'){
+      } else if (phase === 'hide') {
         this.contentWrapperNode.classList.remove('global-overlays__overlay-container');
         this.contentWrapperNode.classList.remove(placementClass);
         this.contentNode.classList.remove('global-overlays__overlay');
       }
-
     } else if (this.placementMode === 'local' && phase === 'show') {
       /**
        * Popper is weird about properly positioning the popper element when it is recreated so
@@ -743,7 +743,7 @@ export class OverlayController extends EventTargetShim {
        * This is however necessary for initial placement.
        */
       await this.__createPopperInstance();
-      /** @type {Popper} */ (this._popper).forceUpdate();
+      this._popper.forceUpdate();
     }
   }
 
@@ -819,8 +819,10 @@ export class OverlayController extends EventTargetShim {
         contentNode: this.contentNode,
       });
 
-      // @ts-ignore
-      this.__wrappingDialogNode.close();
+      if (typeof this.__wrappingDialogNode === 'function') {
+        // @ts-ignore
+        this.__wrappingDialogNode.close();
+      }
       // @ts-ignore
       this.__wrappingDialogNode.style.display = 'none';
       this._handleFeatures({ phase: 'hide' });
@@ -845,11 +847,11 @@ export class OverlayController extends EventTargetShim {
    * @protected
    */
   // eslint-disable-next-line class-methods-use-this, no-empty-function, no-unused-vars
-  async _transitionHide({backdropNode, contentNode}) {
+  async _transitionHide({ backdropNode, contentNode }) {
     // `this.transitionHide` is a hook for our users
     await this.transitionHide({ backdropNode, contentNode });
-    this._handlePosition({phase: 'hide'});
-    if (!backdropNode) { 
+    this._handlePosition({ phase: 'hide' });
+    if (!backdropNode) {
       return;
     }
     const afterFadeOut = () => {
@@ -858,7 +860,7 @@ export class OverlayController extends EventTargetShim {
         backdropNode.classList.remove(`global-overlays__backdrop--visible`);
         backdropNode.removeEventListener('animationend', afterFadeOut);
       }
-    }
+    };
     backdropNode.removeEventListener('animationend', afterFadeOut);
     backdropNode.classList.remove(`global-overlays__backdrop--animation-in`);
     backdropNode.addEventListener('animationend', afterFadeOut);
@@ -892,9 +894,7 @@ export class OverlayController extends EventTargetShim {
     const { activeElement } = /** @type {ShadowRoot} */ (this.contentWrapperNode.getRootNode());
     // We only are allowed to move focus if we (still) 'own' it.
     // Otherwise we assume the 'outside world' has, purposefully, taken over
-    if (
-      activeElement instanceof HTMLElement && this.contentWrapperNode.contains(activeElement)
-    ) {
+    if (activeElement instanceof HTMLElement && this.contentWrapperNode.contains(activeElement)) {
       if (this.elementToFocusAfterHide) {
         this.elementToFocusAfterHide.focus();
       } else {
@@ -991,7 +991,7 @@ export class OverlayController extends EventTargetShim {
     // eslint-disable-next-line default-case
     switch (phase) {
       case 'init': {
-        if(!this.__backdropInitialized) {
+        if (!this.__backdropInitialized) {
           if (!this.config?.backdropNode) {
             this.__backdropNode = document.createElement('div');
             // If backdropNode existed in config, styles are applied by implementing party
